@@ -1,9 +1,9 @@
 from lib.config import Config, config_prompt
-from operators.preprocessing import preprocess
+from operators.preprocessing.preprocessing import generate_dataset
 
 
 def run_pipeline(config: Config):
-    preprocess(config)
+    generate_dataset(config)
 
 
 if __name__ == '__main__':
