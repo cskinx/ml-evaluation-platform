@@ -18,7 +18,7 @@ def split_dataset(dataset_df: pd.DataFrame, trainset_ratio: float)\
 
 
 def preprocess(dataset_df: pd.DataFrame, config: Config) -> DataSet:
-    # first, apply custom functions pipeline
+    # apply custom functions pipeline
     custom_fct_names = config.get('dataset.preprocessing.custom_functions')
     for function_name in custom_fct_names:
         try:
@@ -28,14 +28,14 @@ def preprocess(dataset_df: pd.DataFrame, config: Config) -> DataSet:
             # raise Exception with more explicit error message
             raise AttributeError('Could not find preprocessing function '
                 f'{function_name} in operators.preprocessing.custom_functions')
-
+    # split by rows
     split_ratio = config.get('dataset.preprocessing.trainset_ratio')
     train_dataset, test_dataset = split_dataset(dataset_df, split_ratio)
-
+    # split by column
     target_column = config.get('dataset.preprocessing.target_column')
     train_labels = train_dataset.pop(target_column)
     test_labels = test_dataset.pop(target_column)
-
+    # fit normalizer to training features
     normalizer = preprocessing.Normalization()
     normalizer.adapt(np.array(train_dataset))
 

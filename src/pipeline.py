@@ -3,7 +3,9 @@ from operators.preprocessing.preprocessing import generate_dataset
 
 
 def run_pipeline(config: Config):
-    generate_dataset(config)
+    dataset = generate_dataset(config)
+    print(dataset.training_set)
+    print(dataset.test_set)
 
 
 if __name__ == '__main__':

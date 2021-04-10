@@ -22,3 +22,8 @@ def fuel_efficiency_dummies(dataset_df: pd.DataFrame) -> pd.DataFrame:
     dataset_df = pd.get_dummies(dataset_df, columns=['Origin'], prefix='',
         prefix_sep='')
     return dataset_df
+
+
+def keep_horsepower_only(dataset_df: pd.DataFrame) -> pd.DataFrame:
+    dataset_df = dataset_df[['Horsepower', 'MPG']]
+    return dataset_df
