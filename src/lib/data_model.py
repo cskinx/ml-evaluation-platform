@@ -5,7 +5,7 @@ from datetime import datetime
 
 @dataclass
 class Run:
-    """Representation of a single run on a specific dataset with a specific
+    """ Representation of a single run on a specific dataset with a specific
     model and set of results, i.e. metrics with their  scores, at a specific
     time and date."""
     timestamp: datetime

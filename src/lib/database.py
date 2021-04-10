@@ -15,7 +15,7 @@ def save_run(run: Run):
     pass
 
 
-def save_dataset(name: str, csv_path: str):
+def store_dataset(name: str, dataset: pd.DataFrame):
     pass
 
 

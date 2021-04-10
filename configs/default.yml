@@ -1,0 +1,20 @@
+dataset:
+  # Configuration of the dataset.
+  name: fuel_efficiency
+  pandas_args:
+    # These parameters need to resemble the arguments that are passed
+    # directly to the pandas.read_csv() function.
+    filepath_or_buffer: http://archive.ics.uci.edu/ml/machine-learning-databases/auto-mpg/auto-mpg.data
+    names:
+      - MPG
+      - Cylinders
+      - Displacement
+      - Horsepower
+      - Weight
+      - Acceleration
+      - Model Year
+      - Origin
+    na_values: "?"
+    comment: "\t"
+    sep: " "
+    skipinitialspace: true
