@@ -16,7 +16,7 @@ class Config:
         default_cfg_path = os.path.join(config_dir, 'default.yml')
         config = OmegaConf.load(default_cfg_path)
         # load more specific config
-        specific_cfg_path = os.path.join(config_dir, name, '.yml')
+        specific_cfg_path = os.path.join(config_dir, f'{name}.yml')
         if os.path.exists(specific_cfg_path):
             specific_config = OmegaConf.load(specific_cfg_path)
             config = OmegaConf.merge(config, specific_config)

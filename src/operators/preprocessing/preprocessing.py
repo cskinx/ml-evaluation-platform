@@ -23,7 +23,7 @@ def preprocess(dataset_df: pd.DataFrame, config: Config) -> DataSet:
     for function_name in custom_fct_names:
         try:
             callable_fct = getattr(custom_functions, function_name)
-            callable_fct(dataset_df)
+            dataset_df = callable_fct(dataset_df)
         except AttributeError:
             # raise Exception with more explicit error message
             raise AttributeError('Could not find preprocessing function '

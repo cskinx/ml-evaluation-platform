@@ -1,4 +1,8 @@
+# we only extend the pipeline with a function that drops
+# most of the independent variables.
 dataset:
   preprocessing:
     custom_functions:
+      - drop_missing
+      - fuel_efficiency_dummies
       - keep_horsepower_only
