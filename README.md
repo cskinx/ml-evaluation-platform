@@ -16,7 +16,7 @@ Note that the latest official Tensorflow release does not support Apple's M1 chi
 ### Launch SQL database
 We are using a PostgreSQL database with their [official Docker image](https://hub.docker.com/_/postgres):
 
-`docker run --name data-store -e POSTGRES_PASSWORD=<password> -p 5432:5432 -d postgres:latest`
+`docker run --name data-store -e POSTGRES_PASSWORD=<password> -p 5432:5432 --network="host" -d postgres:latest`
 
 
 ## Extensions
