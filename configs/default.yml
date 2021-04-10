@@ -1,3 +1,10 @@
+database:
+  host: localhost
+  port: 5432
+  username: postgres
+  password: password
+  name: DATA_STORE
+  dataset_prefix: DATASET_
 dataset:
   # Configuration of the dataset.
   name: fuel_efficiency

@@ -1,35 +1,23 @@
 import pandas as pd
-from typing import Dict
 import argparse
 
-from lib.config import get_config, get_value
-import lib.database as db
+from lib.config import Config
+from lib.data_store import DataStore
 
 
-def read_dataset(dataset_config: Dict):
+def store_dataset(config: Config):
     """ Reads the dataset with the given configuration and stores
     it in the database."""
-    dataset_df = pd.read_csv(**dataset_config['pandas_args'])
-    db.store_dataset(dataset_config['name'], dataset_df)
-
-
-def check_config(config):
-    """ Sanity check to catch missing fields in the configuration."""
-    mandatory_fields = [
-        'dataset',
-        'dataset.name',
-        'dataset.pandas_args',
-        'dataset.pandas_args.filepath_or_buffer',
-    ]
-    for field in mandatory_fields:
-        if not get_value(config, field):
-            raise KeyError(f'Required configuration field "{field}" not found')
+    dataset_name = config.get('dataset.name')
+    pandas_config = config.get('dataset.pandas_args')
+    dataset_df = pd.read_csv(**pandas_config)
+    data_store = DataStore(config)
+    data_store.store_dataset(dataset_name, dataset_df)
 
 
 def main(config_path: str):
-    config = get_config(config_path)
-    check_config(config)
-    read_dataset(config['dataset'])
+    config = Config(config_path)
+    store_dataset(config)
 
 
 if __name__ == '__main__':
