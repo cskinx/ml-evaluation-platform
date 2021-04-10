@@ -1,7 +1,6 @@
 import pandas as pd
-import argparse
 
-from lib.config import Config
+from lib.config import Config, config_prompt
 from lib.data_store import DataStore
 
 
@@ -15,14 +14,6 @@ def store_dataset(config: Config):
     data_store.store_dataset(dataset_name, dataset_df)
 
 
-def main(config_path: str):
-    config = Config(config_path)
-    store_dataset(config)
-
-
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--config', default='',
-        help='name of the configuration file to use (e.g. \'default\')')
-    args = parser.parse_args()
-    main(args.config)
+    config = config_prompt()
+    store_dataset(config)

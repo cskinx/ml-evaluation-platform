@@ -25,3 +25,12 @@ dataset:
     comment: "\t"
     sep: " "
     skipinitialspace: true
+  preprocessing:
+    target_column: MPG
+    trainset_ratio: 0.8
+    # You can specify custom functions here that should be applied at the raw dataset.
+    # They need to be defined in the src.operators.preprocessing.custom_functions.py
+    # script. The order here will be kept. 
+    custom_functions:
+      - drop_missing
+      - fuel_efficiency_dummies

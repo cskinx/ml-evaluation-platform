@@ -1,6 +1,7 @@
 from omegaconf import OmegaConf
 import os
 from typing import Any
+import argparse
 
 
 class Config:
@@ -28,3 +29,14 @@ class Config:
         if not value and throw_exception:
             raise KeyError(f'Required configuration field "{path}" not found')
         return value
+
+
+def config_prompt() -> Config:
+    """ Add a prompt solely to ask for a config path; then create and return
+    the Config object."""
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--config', default='',
+        help='name of the configuration file to use (e.g. \'default\')')
+    args = parser.parse_args()
+    config = Config(args.config)
+    return config

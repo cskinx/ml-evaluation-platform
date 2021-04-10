@@ -10,9 +10,16 @@ Only Docker is required to run the project.
 
 If you want to run some of the Python scripts outside of a Docker image we recommend using Python 3.8. All required packages are contained in `requirements.txt` (`pip install -r requirements.txt`).
 
+Note that the latest official Tensorflow release does not support Apple's M1 chip yet. [Here is a guide](https://github.com/apple/tensorflow_macos/issues/153) on how to install it in a way so that one can still use Tensorflow on newer Macbooks.
 
 ## Setup
 ### Launch SQL database
 We are using a PostgreSQL database with their [official Docker image](https://hub.docker.com/_/postgres):
 
 `docker run --name data-store -e POSTGRES_PASSWORD=<password> -p 5432:5432 -d postgres:latest`
+
+
+## Extensions
+This is just a first, very plain implementation of a model evaluation platform. There are a lot of potential extensions which hopefully would be fairly straight forward to add with the current modular structure. A few ideas:
+
+- The configuration files could be even more powerful if any number of configuration files could be loaded; currently only 2 are supported, but one could easily support an arbitrary number with the latest config file overwriting the previous ones. This way, one could for example combine any preprocessing methods with any model parameters and quickly generate results for different combinations. It would also be nice to load a config from the database and save it directly as a .yml file to reproduce this run.

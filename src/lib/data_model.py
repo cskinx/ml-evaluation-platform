@@ -1,6 +1,7 @@
 from typing import Dict
 from dataclasses import dataclass
 from datetime import datetime
+import pandas as pd
 
 
 @dataclass
@@ -14,3 +15,16 @@ class Run:
     model_name: str
     model_cfg: Dict
     metric_scores: Dict
+
+
+@dataclass
+class DataSet:
+    """ Representation of a dataset containing a training and test set,
+    which are each split into features and labels. Also contains a normalizer
+    based on the training set to properly transform instances outside of
+    the training set."""
+    training_set: pd.DataFrame
+    training_labels: pd.DataFrame
+    test_set: pd.DataFrame
+    test_labels: pd.DataFrame
+    normalizer: object  # ??

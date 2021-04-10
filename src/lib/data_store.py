@@ -36,6 +36,11 @@ class DataStore:
     def save_run(self, run: Run):
         pass
 
+    def get_table_count(self, table_name: str) -> int:
+        query = f'SELECT COUNT(*) FROM "{table_name}"'
+        count = self.engine.execute(query).scalar()
+        return count
+
     def store_dataset(self, name: str, dataset_df: pd.DataFrame):
         table_name = f'{self.dataset_prefix}{name}'
         try:
@@ -45,10 +50,11 @@ class DataStore:
                 ' please choose a different name.')
         self.print_datasets()
 
-    def get_table_count(self, table_name: str) -> int:
-        query = f'SELECT COUNT(*) FROM "{table_name}"'
-        count = self.engine.execute(query).scalar()
-        return count
+    def load_dataset(self, name: str) -> pd.DataFrame:
+        """ Loads the complete dataset with the given name."""
+        table_name = f'{self.dataset_prefix}{name}'
+        dataset_df = pd.read_sql(table_name, self.engine)
+        return dataset_df
 
     def print_datasets(self):
         """ Print datasets with number of observations (rows)."""
@@ -59,6 +65,3 @@ class DataStore:
                 dataset_name = table_name.replace(self.dataset_prefix, '')
                 table_count = self.get_table_count(table_name)
                 print(f'- "{dataset_name}": {table_count:8d}')
-
-    def load_dataset(self, name: str) -> pd.DataFrame:
-        pass
