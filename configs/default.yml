@@ -26,6 +26,7 @@ dataset:
     sep: " "
     skipinitialspace: true
   preprocessing:
+    name: standard
     target_column: MPG
     trainset_ratio: 0.8
     # You can specify custom functions here that should be applied at the raw dataset.

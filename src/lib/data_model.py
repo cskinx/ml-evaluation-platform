@@ -1,10 +1,13 @@
 from typing import Dict
 from dataclasses import dataclass
 from datetime import datetime
+
 import pandas as pd
 from tensorflow.keras.layers.experimental import preprocessing
 
 
+# TODO: this should be renamed because it has the same name as datasets in the DB
+# but they refer to different concepts.
 @dataclass
 class Dataset:
     """ Representation of a dataset containing a training and test set,
@@ -25,7 +28,7 @@ class Run:
     time and date."""
     timestamp: datetime
     dataset_name: str
-    dataset_cfg: Dict
+    preprocessing_cfg: Dict
     model_name: str
-    model_cfg: Dict
+    model_hyperparameters: Dict
     metric_scores: Dict

@@ -1,5 +1,6 @@
-from typing import List
+from typing import List, Dict
 import logging
+
 from sqlalchemy import create_engine
 from sqlalchemy_utils import database_exists, create_database
 import pandas as pd
@@ -27,13 +28,18 @@ class DataStore:
         if not database_exists(connection_str):
             create_database(connection_str)
 
-    def load_best_run(self, dataset_name: str) -> Run:
+    def load_best_run(self, dataset_name: str, metric: str) -> Run:
         pass
 
-    def load_relevant_runs(self, dataset_name: str) -> List[Run]:
+    def load_recent_good_runs(
+            self, dataset_name: str, metric: str, max_score: float = None)\
+            -> List[Run]:
+        """ Loads all runs from the last 7 days which have a score below
+        the max_score for the given metric."""
         pass
 
     def save_run(self, run: Run):
+        """ Saves the given run into the database."""
         pass
 
     def get_table_count(self, table_name: str) -> int:
@@ -56,12 +62,16 @@ class DataStore:
         dataset_df = pd.read_sql(table_name, self.engine)
         return dataset_df
 
-    def print_datasets(self):
-        """ Print datasets with number of observations (rows)."""
+    def get_dataset_overview(self) -> List[Dict]:
+        """ Returns datasets with number of observations (rows)."""
+        datasets = []
         table_names = self.engine.table_names()
-        print('Existing datasets:')
         for table_name in table_names:
             if table_name.startswith(self.dataset_prefix):
                 dataset_name = table_name.replace(self.dataset_prefix, '')
                 table_count = self.get_table_count(table_name)
-                print(f'- "{dataset_name}": {table_count:8d}')
+                datasets.append({
+                    'name': dataset_name,
+                    'size': table_count,
+                })
+        return datasets

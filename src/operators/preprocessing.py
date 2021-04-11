@@ -5,7 +5,7 @@ from tensorflow.keras.layers.experimental import preprocessing
 from lib.data_model import Dataset
 from lib.data_store import DataStore
 from lib.config import Config
-from operators.preprocessing import custom_functions
+from lib import preprocessing_helpers
 
 
 def apply_custom_functions(dataset_df: pd.DataFrame, config: Config)\
@@ -18,13 +18,12 @@ def apply_custom_functions(dataset_df: pd.DataFrame, config: Config)\
     custom_fct_names = config.get('dataset.preprocessing.custom_functions')
     for function_name in custom_fct_names:
         try:
-            callable_fct = getattr(custom_functions, function_name)
-            dataset_df = callable_fct(dataset_df)
+            preprocess_fct = getattr(preprocessing_helpers, function_name)
+            dataset_df = preprocess_fct(dataset_df)
         except AttributeError:
             # raise Exception with more explicit error message
             raise AttributeError('Could not find preprocessing function '
-                f'"{function_name}" in operators.preprocessing.'
-                'custom_functions')
+                f'"{function_name}" in lib.preprocessing_helpers')
     return dataset_df
 
 

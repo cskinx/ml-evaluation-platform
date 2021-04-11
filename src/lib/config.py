@@ -1,7 +1,8 @@
-from omegaconf import OmegaConf
 import os
 from typing import Any
 import argparse
+
+from omegaconf import OmegaConf
 
 
 class Config:

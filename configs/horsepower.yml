@@ -2,6 +2,7 @@
 # most of the independent variables.
 dataset:
   preprocessing:
+    name: only_horsepower
     custom_functions:
       - drop_missing
       - fuel_efficiency_dummies

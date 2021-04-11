@@ -1,7 +1,8 @@
-from lib.config import Config
 from tensorflow import keras
 from tensorflow.keras.layers.experimental import preprocessing
 import tensorflow as tf
+
+from lib.config import Config
 
 
 def regression(config: Config, normalizer: preprocessing.Normalization)\
