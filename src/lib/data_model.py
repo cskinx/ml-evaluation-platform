@@ -6,7 +6,7 @@ from tensorflow.keras.layers.experimental import preprocessing
 
 
 @dataclass
-class DataSet:
+class Dataset:
     """ Representation of a dataset containing a training and test set,
     which are each split into features and labels. Also contains a normalizer
     based on the training set to properly transform instances outside of

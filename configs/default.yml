@@ -34,3 +34,10 @@ dataset:
     custom_functions:
       - drop_missing
       - fuel_efficiency_dummies
+model:
+  type: regression
+  hyperparameters:
+    epochs: 100
+    validation_split: 0.2
+    learning_rate: 0.1
+    loss: mean_absolute_error

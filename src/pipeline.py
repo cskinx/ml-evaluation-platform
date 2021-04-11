@@ -1,5 +1,6 @@
 from lib.config import Config, config_prompt
 from operators.preprocessing.preprocessing import generate_dataset
+from operators.training.training import train_model
 
 
 def run_pipeline(config: Config):

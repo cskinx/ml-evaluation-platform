@@ -1,24 +1,20 @@
 import pandas as pd
 import numpy as np
 from tensorflow.keras.layers.experimental import preprocessing
-import logging
-from typing import Tuple
 
-from lib.data_model import DataSet
+from lib.data_model import Dataset
 from lib.data_store import DataStore
 from lib.config import Config
 from operators.preprocessing import custom_functions
 
 
-def split_dataset(dataset_df: pd.DataFrame, trainset_ratio: float)\
-        -> Tuple[pd.DataFrame, pd.DataFrame]:
-    train_dataset = dataset_df.sample(frac=trainset_ratio, random_state=0)
-    test_dataset = dataset_df.drop(train_dataset.index)
-    return (train_dataset, test_dataset)
-
-
-def preprocess(dataset_df: pd.DataFrame, config: Config) -> DataSet:
-    # apply custom functions pipeline
+def apply_custom_functions(dataset_df: pd.DataFrame, config: Config)\
+        -> pd.DataFrame:
+    """ It looks a bit hacky but we are just taking the function names
+    from the config and loading the actual Callable functions from
+    the preprocessing.custom_functions file.
+    See https://stackoverflow.com/a/3071
+    """
     custom_fct_names = config.get('dataset.preprocessing.custom_functions')
     for function_name in custom_fct_names:
         try:
@@ -27,10 +23,18 @@ def preprocess(dataset_df: pd.DataFrame, config: Config) -> DataSet:
         except AttributeError:
             # raise Exception with more explicit error message
             raise AttributeError('Could not find preprocessing function '
-                f'{function_name} in operators.preprocessing.custom_functions')
+                f'"{function_name}" in operators.preprocessing.'
+                'custom_functions')
+    return dataset_df
+
+
+def preprocess(dataset_df: pd.DataFrame, config: Config) -> Dataset:
+    # apply custom functions pipeline
+    dataset_df = apply_custom_functions(dataset_df, config)
     # split by rows
     split_ratio = config.get('dataset.preprocessing.trainset_ratio')
-    train_dataset, test_dataset = split_dataset(dataset_df, split_ratio)
+    train_dataset = dataset_df.sample(frac=split_ratio, random_state=0)
+    test_dataset = dataset_df.drop(train_dataset.index)
     # split by column
     target_column = config.get('dataset.preprocessing.target_column')
     train_labels = train_dataset.pop(target_column)
@@ -39,7 +43,7 @@ def preprocess(dataset_df: pd.DataFrame, config: Config) -> DataSet:
     normalizer = preprocessing.Normalization()
     normalizer.adapt(np.array(train_dataset))
 
-    dataset = DataSet(
+    dataset = Dataset(
         training_set=train_dataset,
         training_labels=train_labels,
         test_set=test_dataset,
@@ -49,7 +53,7 @@ def preprocess(dataset_df: pd.DataFrame, config: Config) -> DataSet:
     return dataset
 
 
-def generate_dataset(config: Config) -> DataSet:
+def generate_dataset(config: Config) -> Dataset:
     """ Loads the complete dataset, processes it and returns a more
     complex DataSet object which can then directly be used for training
     and evaluation."""
