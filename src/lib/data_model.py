@@ -29,6 +29,6 @@ class Run:
     timestamp: datetime
     dataset_name: str
     preprocessing_cfg: Dict
-    model_name: str
+    model_type: str
     model_hyperparameters: Dict
     metric_scores: Dict

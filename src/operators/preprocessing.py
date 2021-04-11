@@ -39,7 +39,9 @@ def preprocess(dataset_df: pd.DataFrame, config: Config) -> Dataset:
     train_labels = train_dataset.pop(target_column)
     test_labels = test_dataset.pop(target_column)
     # fit normalizer to training features
-    normalizer = preprocessing.Normalization()
+    normalizer = preprocessing.Normalization(
+        input_shape=[len(train_dataset.columns),]
+    )
     normalizer.adapt(np.array(train_dataset))
 
     dataset = Dataset(

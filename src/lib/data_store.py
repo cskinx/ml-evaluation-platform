@@ -27,7 +27,7 @@ class DataStore:
         self.dataset_prefix = config.get('database.dataset_prefix')
         self.scores_table = 'metric_scores'
         self.runs_table = 'runs'
-        self.setup_db()
+        self.setup()
 
     def setup(self):
         """ Create database and necessary metadata tables, if they
@@ -40,21 +40,21 @@ class DataStore:
             create_database(connection_str)
         # necessary tables
         runs_table_query = f"""
-            CREATE TABLE {self.runs_table} IF NOT EXISTS (
+            CREATE TABLE IF NOT EXISTS {self.runs_table} (
                 run_id                 SERIAL PRIMARY KEY,
                 timestamp              TIMESTAMP,
                 dataset_name           VARCHAR(128),
                 preprocessing_cfg      JSON,
-                model_name             VARCHAR(128),
+                model_type             VARCHAR(128),
                 model_hyperparameters  JSON
             );
         """
         self.engine.execute(runs_table_query)
         scores_table_query = f"""
-            CREATE TABLE {self.scores_table} IF NOT EXISTS (
+            CREATE TABLE IF NOT EXISTS {self.scores_table} (
                 run_id  INTEGER REFERENCES {self.runs_table} (run_id),
                 metric  VARCHAR(128),
-                score   DOUBLE,
+                score   FLOAT,
                 PRIMARY KEY(run_id, metric)
             );
         """
@@ -66,26 +66,29 @@ class DataStore:
                 SELECT  runs.timestamp,
                         runs.dataset_name,
                         runs.preprocessing_cfg,
-                        runs.model_name,
+                        runs.model_type,
                         runs.model_hyperparameters,
                         metric_scores.metric,
                         metric_scores.score
                 FROM    runs, metric_scores
                 WHERE   runs.run_id = metric_scores.run_id
-                    AND runs.dataset_name = {dataset_name}
-                    AND metric_scores.metric = {metric}
+                    AND runs.dataset_name = '{dataset_name}'
+                    AND metric_scores.metric = '{metric}'
             ),
             best_score AS (
                 SELECT MIN(score) AS value
                 FROM runs_scores
             )
             SELECT runs_scores.*
-            FROM   runs_scores
-            WHERE runs_scores.score = best_score.value;
+            FROM   runs_scores, best_score
+            WHERE runs_scores.score = best_score.value
+            ORDER BY runs_scores.timestamp ASC
+            LIMIT 1;
         """
         results = self.engine.execute(query)
         for row in results:
-            print(row)
+            return row
+
 
     def load_recent_good_runs(
             self, dataset_name: str, metric: str, max_score: float = None)\
@@ -102,8 +105,8 @@ class DataStore:
                     metric_scores.score
             FROM    runs, metric_scores
             WHERE   runs.run_id = metric_scores.run_id
-                AND runs.dataset_name = {dataset_name}
-                AND metric_scores.metric = {metric}
+                AND runs.dataset_name = '{dataset_name}'
+                AND metric_scores.metric = '{metric}'
                 AND metric_scores.score <= {max_score};
         """
         results = self.engine.execute(query)
@@ -114,13 +117,13 @@ class DataStore:
         """ Saves the given run into the database."""
         query = f"""
             INSERT INTO runs (timestamp, dataset_name, preprocessing_cfg,
-                model_name, model_hyperparameters)
+                model_type, model_hyperparameters)
             VALUES (
-                {run.timestamp},
-                {run.dataset_name},
-                {json.dumps(run.preprocessing_cfg)},
-                {run.model_name},
-                {json.dumps(run.model_hyperparameters)}
+                '{run.timestamp}',
+                '{run.dataset_name}',
+                '{json.dumps(run.preprocessing_cfg)}',
+                '{run.model_type}',
+                '{json.dumps(run.model_hyperparameters)}'
             )
         """
         self.engine.execute(query)
@@ -137,7 +140,6 @@ class DataStore:
         except ValueError:
             logging.error(f'dataset {name} already exists;'\
                 ' please choose a different name.')
-        self.print_datasets()
 
     def load_dataset(self, name: str) -> pd.DataFrame:
         """ Loads the complete dataset with the given name."""
