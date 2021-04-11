@@ -8,7 +8,6 @@ from lib.data_store import DataStore
 from lib.print_utils import print_run_overview
 
 
-
 def evaluate(model: keras.Sequential, dataset: Dataset, config: Config):
     model_result = model.evaluate(
         dataset.test_set,

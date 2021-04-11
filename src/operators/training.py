@@ -3,7 +3,7 @@ import tensorflow as tf
 
 from lib.config import Config
 from lib.data_model import Dataset
-from lib import models
+from lib import ml_models
 
 
 def train(dataset: Dataset, config: Config)\
@@ -11,7 +11,7 @@ def train(dataset: Dataset, config: Config)\
     # determine model type and get respective function
     model_type = config.get('model.type')
     try:
-        build_model = getattr(models, model_type)
+        build_model = getattr(ml_models, model_type)
     except AttributeError:
         # raise Exception with more explicit error message
         raise AttributeError('Could not find model function '
