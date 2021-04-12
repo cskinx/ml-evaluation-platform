@@ -17,7 +17,8 @@ def regression(config: Config, normalizer: preprocessing.Normalization)\
     loss = config.get('model.hyperparameters.loss')
     model.compile(
         optimizer=tf.optimizers.Adam(learning_rate=learning_rate),
-        loss=loss)
+        loss=loss,
+        metrics=[tf.keras.metrics.MeanAbsoluteError()])
     return model
 
 
@@ -27,10 +28,10 @@ def dnn(config: Config, normalizer: preprocessing.Normalization)\
     layer_sizes = config.get('model.hyperparameters.layer_sizes')
     if len(layer_sizes) != 2:
         raise ValueError('model.hyperparameters.layer_sizes requires two'
-            ' values for dnn')
+                         ' values for dnn')
     if not all(isinstance(size, int) for size in layer_sizes):
         raise TypeError('model.hyperparameters.layer_sizes need to be'
-            ' integer values')
+                        ' integer values')
     # build model
     model = keras.Sequential([
         normalizer,

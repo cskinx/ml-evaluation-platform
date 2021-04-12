@@ -100,12 +100,11 @@ class DataStore:
         run_row = result.fetchone()
         return row_to_run(run_row)
 
-    def load_recent_good_runs(
-            self, dataset_name: str, metric: str, max_score: float = None)\
-            -> List[Run]:
-        """ Loads all runs from the last 7 days which have a score below
-        the max_score for the given metric."""
-        seven_days_ago = dt.date.today() - dt.timedelta(days=7)
+    def load_runs(self, conditions: List[str] = []) -> List[Run]:
+        """ Loads a list of runs, filtered by the given condition."""
+        condition_str = ''
+        if len(conditions) >= 1:
+            condition_str = 'AND ' + ' AND '.join(conditions)
         query = f"""
             SELECT  timestamp,
                     dataset_name,
@@ -116,10 +115,7 @@ class DataStore:
                     score
             FROM    {self.runs_table}, {self.scores_table}
             WHERE   {self.runs_table}.run_id = {self.scores_table}.run_id
-                AND {self.runs_table}.dataset_name = '{dataset_name}'
-                AND {self.scores_table}.metric = '{metric}'
-                AND {self.scores_table}.score <= {max_score}
-                AND {self.runs_table}.timestamp >= {seven_days_ago};
+                    {condition_str};
         """
         results = self.engine.execute(query)
         runs = []
@@ -127,12 +123,27 @@ class DataStore:
             runs.append(row_to_run(row))
         return runs
 
+    def load_recent_good_runs(
+            self, dataset_name: str, metric: str, max_score: float)\
+            -> List[Run]:
+        """ Loads all runs from the last 7 days which have a score below
+        the max_score for the given metric."""
+        seven_days_ago = dt.date.today() - dt.timedelta(days=7)
+        conditions = [
+            f"{self.runs_table}.dataset_name = '{dataset_name}'",
+            f"{self.scores_table}.metric = '{metric}'",
+            f"{self.scores_table}.score <= {max_score}",
+            f"{self.runs_table}.timestamp >= {seven_days_ago}",
+        ]
+        runs = self.load_runs(conditions)
+        return runs
+
     def save_run(self, run: Run):
         """ Saves the given run into the database."""
         # save run metadata
         query = f"""
-            INSERT INTO {self.runs_table} (timestamp, dataset_name, preprocessing_cfg,
-                model_type, model_hyperparameters)
+            INSERT INTO {self.runs_table} (timestamp, dataset_name,
+                preprocessing_cfg, model_type, model_hyperparameters)
             VALUES (
                 '{run.timestamp}',
                 '{run.dataset_name}',
@@ -165,8 +176,8 @@ class DataStore:
         try:
             dataset_df.to_sql(table_name, self.engine)
         except ValueError:
-            logging.error(f'dataset {name} already exists;'\
-                ' please choose a different name.')
+            logging.error(f'dataset {name} already exists;'
+                          ' please choose a different name.')
 
     def load_dataset(self, name: str) -> pd.DataFrame:
         """ Loads the complete dataset with the given name."""
