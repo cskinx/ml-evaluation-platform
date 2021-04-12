@@ -12,16 +12,15 @@ def print_dataset_overview(datasets_info: List[Dict]):
 def print_run_overview(runs_info: List[Dict], metric: str):
     """ Prints an overview of runs."""
     print('Runs:')
-    rows = [
-        ['Label', 'Dataset', 'Preprocessing', 'Model'],
-        ['', '', '', ''],
-    ]
+    header = ['Label', 'Date', 'Dataset', 'Preprocessing', 'Model', 'Metric']
+    rows = [header, [''] * len(header)]
     for run_info in runs_info:
         run = run_info['run']
         if run is None:
             continue
         columns = [
             run_info['label'],
+            f'{run.timestamp:%Y-%m-%d}',
             run.dataset_name,
             run.preprocessing_cfg['name'],
             run.model_type,

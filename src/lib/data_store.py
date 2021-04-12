@@ -133,7 +133,7 @@ class DataStore:
             f"{self.runs_table}.dataset_name = '{dataset_name}'",
             f"{self.scores_table}.metric = '{metric}'",
             f"{self.scores_table}.score <= {max_score}",
-            f"{self.runs_table}.timestamp >= {seven_days_ago}",
+            f"{self.runs_table}.timestamp >= '{seven_days_ago}'",
         ]
         runs = self.load_runs(conditions)
         return runs

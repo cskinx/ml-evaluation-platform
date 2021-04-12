@@ -3,7 +3,7 @@ import argparse
 
 from lib.config import Config
 from lib.data_store import DataStore
-from print_utils import print_run_overview, print_dataset_overview
+from lib.print_utils import print_run_overview, print_dataset_overview
 
 # modes
 PRINT_DATASETS = 'datasets'
@@ -22,7 +22,7 @@ def main(info_type: str, config: Config):
         runs = data_store.load_recent_good_runs(
             dataset_selected,
             metric_selected,
-            score=2.5)
+            max_score=2.5)
         runs_info = [
             {'label': str(i), 'run': run} for i, run in enumerate(runs)
         ]
