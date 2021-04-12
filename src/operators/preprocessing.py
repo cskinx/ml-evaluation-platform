@@ -5,7 +5,7 @@ from tensorflow.keras.layers.experimental import preprocessing
 from lib.data_model import Dataset
 from lib.data_store import DataStore
 from lib.config import Config
-from lib import preprocessing_helpers
+from custom_functions import preprocessing_helpers
 
 
 def apply_custom_functions(dataset_df: pd.DataFrame, config: Config)\
@@ -23,7 +23,8 @@ def apply_custom_functions(dataset_df: pd.DataFrame, config: Config)\
         except AttributeError:
             # raise Exception with more explicit error message
             raise AttributeError('Could not find preprocessing function '
-                f'"{function_name}" in lib.preprocessing_helpers')
+                                 f'"{function_name}" in'
+                                 ' lib.preprocessing_helpers')
     return dataset_df
 
 
@@ -40,7 +41,7 @@ def preprocess(dataset_df: pd.DataFrame, config: Config) -> Dataset:
     test_labels = test_dataset.pop(target_column)
     # fit normalizer to training features
     normalizer = preprocessing.Normalization(
-        input_shape=[len(train_dataset.columns),]
+        input_shape=[len(train_dataset.columns), ]
     )
     normalizer.adapt(np.array(train_dataset))
 

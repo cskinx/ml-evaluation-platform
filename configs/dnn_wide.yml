@@ -2,5 +2,5 @@ model:
   type: dnn
   hyperparameters:
     layer_sizes:
-      - 64
-      - 64
+      - 512
+      - 256

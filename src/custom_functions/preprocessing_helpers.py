@@ -20,7 +20,10 @@ def fuel_efficiency_dummies(dataset_df: pd.DataFrame) -> pd.DataFrame:
         3: 'Japan'
     }
     dataset_df['Origin'] = dataset_df['Origin'].map(origin_map)
-    dataset_df = pd.get_dummies(dataset_df, columns=['Origin'], prefix='',
+    dataset_df = pd.get_dummies(
+        dataset_df,
+        columns=['Origin'],
+        prefix='',
         prefix_sep='')
     return dataset_df
 

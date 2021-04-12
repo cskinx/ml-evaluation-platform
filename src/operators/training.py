@@ -3,7 +3,7 @@ import tensorflow as tf
 
 from lib.config import Config
 from lib.data_model import Dataset
-from lib import ml_models
+from custom_functions import ml_models
 
 
 def train(dataset: Dataset, config: Config)\
@@ -15,7 +15,7 @@ def train(dataset: Dataset, config: Config)\
     except AttributeError:
         # raise Exception with more explicit error message
         raise AttributeError('Could not find model function '
-            f'"{model_type}" in lib.models')
+                             f'"{model_type}" in lib.models')
     # build
     model = build_model(config, dataset.normalizer)
     # compile

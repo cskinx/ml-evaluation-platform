@@ -10,7 +10,7 @@ def store_dataset(config: Config):
     it in the database."""
     # load data
     dataset_name = config.get('dataset.name')
-    pandas_config = config.get('dataset.pandas_args')
+    pandas_config = config.get('dataset.loading')
     dataset_df = pd.read_csv(**pandas_config)
     # store dataset
     data_store = DataStore(config)
