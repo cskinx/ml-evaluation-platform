@@ -1,13 +1,24 @@
 from typing import List, Dict
 import logging
 import json
+import datetime as dt
 
 from sqlalchemy import create_engine
 from sqlalchemy_utils import database_exists, create_database
+from sqlalchemy.engine.result import RowProxy
 import pandas as pd
 
 from lib.config import Config
 from lib.data_model import Run
+
+
+def row_to_run(row: RowProxy) -> Run:
+    # add column names as keys
+    run_dict = dict(row)
+    run_dict['metric_scores'] = {
+        run_dict.pop('metric'): run_dict.pop('score')
+    }
+    return Run(**run_dict)
 
 
 class DataStore:
@@ -66,14 +77,14 @@ class DataStore:
                 SELECT  timestamp,
                         dataset_name,
                         preprocessing_cfg,
-                        model_name,
+                        model_type,
                         model_hyperparameters,
                         metric,
                         score
-                FROM    {self.runs_table}, self.scores_table
-                WHERE   {self.runs_table}.run_id = metric_scores.run_id
+                FROM    {self.runs_table}, {self.scores_table}
+                WHERE   {self.runs_table}.run_id = {self.scores_table}.run_id
                     AND {self.runs_table}.dataset_name = '{dataset_name}'
-                    AND metric_scores.metric = '{metric}'
+                    AND {self.scores_table}.metric = '{metric}'
             ),
             best_score AS (
                 SELECT MIN(score) AS value
@@ -85,21 +96,21 @@ class DataStore:
             ORDER BY runs_scores.timestamp ASC
             LIMIT 1;
         """
-        results = self.engine.execute(query)
-        for row in results:
-            return row
-
+        result = self.engine.execute(query)
+        run_row = result.fetchone()
+        return row_to_run(run_row)
 
     def load_recent_good_runs(
             self, dataset_name: str, metric: str, max_score: float = None)\
             -> List[Run]:
         """ Loads all runs from the last 7 days which have a score below
         the max_score for the given metric."""
+        seven_days_ago = dt.date.today() - dt.timedelta(days=7)
         query = f"""
             SELECT  timestamp,
                     dataset_name,
                     preprocessing_cfg,
-                    model_name,
+                    model_type,
                     model_hyperparameters,
                     metric,
                     score
@@ -107,17 +118,20 @@ class DataStore:
             WHERE   {self.runs_table}.run_id = {self.scores_table}.run_id
                 AND {self.runs_table}.dataset_name = '{dataset_name}'
                 AND {self.scores_table}.metric = '{metric}'
-                AND {self.scores_table}.score <= {max_score};
+                AND {self.scores_table}.score <= {max_score}
+                AND {self.runs_table}.timestamp >= {seven_days_ago};
         """
         results = self.engine.execute(query)
+        runs = []
         for row in results:
-            print(row)
+            runs.append(row_to_run(row))
+        return runs
 
     def save_run(self, run: Run):
         """ Saves the given run into the database."""
         # save run metadata
         query = f"""
-            INSERT INTO {runs_table} (timestamp, dataset_name, preprocessing_cfg,
+            INSERT INTO {self.runs_table} (timestamp, dataset_name, preprocessing_cfg,
                 model_type, model_hyperparameters)
             VALUES (
                 '{run.timestamp}',
@@ -133,13 +147,13 @@ class DataStore:
         # save run results
         metric_rows = []
         for metric, score in run.metric_scores.items():
-            metric_rows.append(f"({run_id}, {metric}, {score})")
+            metric_rows.append(f"({run_id}, '{metric}', {score})")
         value_rows = ', '.join(metric_rows)
         query = f"""
             INSERT INTO {self.scores_table} (run_id, metric, score)
             VALUES {value_rows};
         """
-        self.engine.execute(query).scalar()
+        self.engine.execute(query)
 
     def get_table_count(self, table_name: str) -> int:
         query = f'SELECT COUNT(*) FROM "{table_name}"'

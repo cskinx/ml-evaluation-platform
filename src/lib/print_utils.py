@@ -25,7 +25,7 @@ def print_run_overview(runs_info: List[Dict], metric: str):
             run.dataset_name,
             run.preprocessing_cfg['name'],
             run.model_type,
-            # f'{run.metric_scores[metric]:.2f}',
+            f'{run.metric_scores[metric]:.2f}',
         ]
         rows.append(columns)
     max_widths = defaultdict(int)

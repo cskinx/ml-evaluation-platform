@@ -5,6 +5,7 @@ This seems necessary because it would be very tedious to map all functionality
 to the structure in the configuration file, especially if the preprocessing
 contains very dataset-specific steps such as renaming variables."""
 import pandas as pd
+pd.options.mode.chained_assignment = None
 
 
 def drop_missing(dataset_df: pd.DataFrame) -> pd.DataFrame:

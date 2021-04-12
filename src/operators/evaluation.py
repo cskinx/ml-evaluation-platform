@@ -12,8 +12,14 @@ def evaluate(model: keras.Sequential, dataset: Dataset, config: Config):
     model_result = model.evaluate(
         dataset.test_set,
         dataset.test_labels,
-        verbose=0
+        verbose=0,
+        return_dict=True
     )
+    # we could handle multiple metrics here but we are only measuring the
+    # model loss (mean abs error) for now.
+    metrics = {
+        config.get('model.hyperparameters.loss'): model_result['loss']
+    }
     run = Run(
         timestamp=datetime.now(),
         dataset_name=config.get('dataset.name'),
@@ -22,7 +28,7 @@ def evaluate(model: keras.Sequential, dataset: Dataset, config: Config):
         model_type=config.get('model.type'),
         model_hyperparameters=dict(config.get('model.hyperparameters',
             as_primitive=True)),
-        metric_scores=model_result
+        metric_scores=metrics
     )
     # store run and compare it to previous best runs
     metric = config.get('model.hyperparameters.loss')
