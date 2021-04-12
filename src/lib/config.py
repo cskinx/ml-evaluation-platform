@@ -23,6 +23,14 @@ class Config:
             config = OmegaConf.merge(config, specific_config)
         self.config = config
 
+    def merge_with_dict(self, config_dict: dict):
+        """ Takes a configuration as dictionary and overwrites the current
+        configuration.
+        This is mostly useful for unit tests where we don't want to depend
+        on existing files to test specific settings."""
+        additional_config = OmegaConf.create(config_dict)
+        self.config = OmegaConf.merge(self.config, additional_config)
+
     def get(self, path, throw_exception=True) -> Any:
         """ Returns the value at the given path of the config;
         if field is mandatory, an Exception should be thrown."""

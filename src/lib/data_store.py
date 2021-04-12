@@ -63,16 +63,16 @@ class DataStore:
     def load_best_run(self, dataset_name: str, metric: str) -> Run:
         query = f"""
             WITH runs_scores AS (
-                SELECT  runs.timestamp,
-                        runs.dataset_name,
-                        runs.preprocessing_cfg,
-                        runs.model_name,
-                        runs.model_hyperparameters,
-                        metric_scores.metric,
-                        metric_scores.score
-                FROM    runs, metric_scores
-                WHERE   runs.run_id = metric_scores.run_id
-                    AND runs.dataset_name = {dataset_name}
+                SELECT  timestamp,
+                        dataset_name,
+                        preprocessing_cfg,
+                        model_name,
+                        model_hyperparameters,
+                        metric,
+                        score
+                FROM    {self.runs_table}, self.scores_table
+                WHERE   {self.runs_table}.run_id = metric_scores.run_id
+                    AND {self.runs_table}.dataset_name = {dataset_name}
                     AND metric_scores.metric = {metric}
             ),
             best_score AS (
@@ -93,18 +93,18 @@ class DataStore:
         """ Loads all runs from the last 7 days which have a score below
         the max_score for the given metric."""
         query = f"""
-            SELECT  runs.timestamp,
-                    runs.dataset_name,
-                    runs.preprocessing_cfg,
-                    runs.model_name,
-                    runs.model_hyperparameters,
-                    metric_scores.metric,
-                    metric_scores.score
-            FROM    runs, metric_scores
-            WHERE   runs.run_id = metric_scores.run_id
-                AND runs.dataset_name = {dataset_name}
-                AND metric_scores.metric = {metric}
-                AND metric_scores.score <= {max_score};
+            SELECT  timestamp,
+                    dataset_name,
+                    preprocessing_cfg,
+                    model_name,
+                    model_hyperparameters,
+                    metric,
+                    score
+            FROM    {self.runs_table}, {self.scores_table}
+            WHERE   {self.runs_table}.run_id = {self.scores_table}.run_id
+                AND {self.runs_table}.dataset_name = {dataset_name}
+                AND {self.scores_table}.metric = {metric}
+                AND {self.scores_table}.score <= {max_score};
         """
         results = self.engine.execute(query)
         for row in results:
@@ -112,8 +112,9 @@ class DataStore:
 
     def save_run(self, run: Run):
         """ Saves the given run into the database."""
+        # save run metadata
         query = f"""
-            INSERT INTO runs (timestamp, dataset_name, preprocessing_cfg,
+            INSERT INTO {runs_table} (timestamp, dataset_name, preprocessing_cfg,
                 model_name, model_hyperparameters)
             VALUES (
                 {run.timestamp},
@@ -122,8 +123,20 @@ class DataStore:
                 {run.model_name},
                 {json.dumps(run.model_hyperparameters)}
             )
+            RETURNING run_id;
         """
-        self.engine.execute(query)
+        # returns the run_id for the next insert
+        run_id = self.engine.execute(query).scalar()
+        # save run results
+        metric_rows = []
+        for metric, score in run.metric_scores.items():
+            metric_rows.append(f"({run_id}, {metric}, {score})")
+        value_rows = ', '.join(metric_rows)
+        query = f"""
+            INSERT INTO {self.scores_table} (run_id, metric, score)
+            VALUES {value_rows};
+        """
+        self.engine.execute(query).scalar()
 
     def get_table_count(self, table_name: str) -> int:
         query = f'SELECT COUNT(*) FROM "{table_name}"'
