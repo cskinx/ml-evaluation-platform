@@ -10,7 +10,7 @@ def regression(config: Config, normalizer: preprocessing.Normalization)\
     # build model
     model = keras.Sequential([
         normalizer,
-        tf.layers.Dense(units=1)
+        keras.layers.Dense(units=1)
     ])
     # compile model
     learning_rate = config.get('model.hyperparameters.learning_rate')
@@ -34,9 +34,9 @@ def dnn(config: Config, normalizer: preprocessing.Normalization)\
     # build model
     model = keras.Sequential([
         normalizer,
-        tf.layers.Dense(layer_sizes[0], activation='relu'),
-        tf.layers.Dense(layer_sizes[1], activation='relu'),
-        tf.layers.Dense(1)
+        keras.layers.Dense(layer_sizes[0], activation='relu'),
+        keras.layers.Dense(layer_sizes[1], activation='relu'),
+        keras.layers.Dense(1)
     ])
     # compile model
     learning_rate = config.get('model.hyperparameters.learning_rate')

@@ -31,12 +31,15 @@ class Config:
         additional_config = OmegaConf.create(config_dict)
         self.config = OmegaConf.merge(self.config, additional_config)
 
-    def get(self, path, throw_exception=True) -> Any:
+    def get(self, path: str, throw_exception: bool = True,
+            as_primitive: bool = False) -> Any:
         """ Returns the value at the given path of the config;
         if field is mandatory, an Exception should be thrown."""
         value = OmegaConf.select(self.config, path)
         if not value and throw_exception:
             raise KeyError(f'Required configuration field "{path}" not found')
+        if as_primitive:
+            value = OmegaConf.to_container(value)
         return value
 
 
