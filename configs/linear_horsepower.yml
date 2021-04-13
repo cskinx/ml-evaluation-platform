@@ -1,6 +1,0 @@
-dataset:
-  preprocessing:
-    custom_functions:
-      - drop_missing
-      - fuel_efficiency_dummies
-      - keep_horsepower_only
