@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from tensorflow.keras.layers.experimental import preprocessing
 
-from lib.data_model import Dataset
+from lib.data_model import PreppedDataset
 from lib.data_store import DataStore
 from lib.config import Config
 from custom_functions import preprocessing_helpers
@@ -28,7 +28,7 @@ def apply_custom_functions(dataset_df: pd.DataFrame, config: Config)\
     return dataset_df
 
 
-def preprocess(dataset_df: pd.DataFrame, config: Config) -> Dataset:
+def preprocess(dataset_df: pd.DataFrame, config: Config) -> PreppedDataset:
     # apply custom functions pipeline
     dataset_df = apply_custom_functions(dataset_df, config)
     # split by rows
@@ -45,7 +45,7 @@ def preprocess(dataset_df: pd.DataFrame, config: Config) -> Dataset:
     )
     normalizer.adapt(np.array(train_dataset))
 
-    dataset = Dataset(
+    dataset = PreppedDataset(
         training_set=train_dataset,
         training_labels=train_labels,
         test_set=test_dataset,
@@ -55,7 +55,7 @@ def preprocess(dataset_df: pd.DataFrame, config: Config) -> Dataset:
     return dataset
 
 
-def generate_dataset(config: Config) -> Dataset:
+def generate_dataset(config: Config) -> PreppedDataset:
     """ Loads the complete dataset, processes it and returns a more
     complex DataSet object which can then directly be used for training
     and evaluation."""

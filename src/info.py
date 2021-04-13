@@ -44,5 +44,5 @@ if __name__ == '__main__':
         choices=[PRINT_DATASETS, PRINT_RELEVANT_RUNS, PRINT_ALL_RUNS],
         help='choose type for what to print')
     args = parser.parse_args()
-    config = Config(args.config)
+    config = Config.from_file(args.config)
     main(args.type, config)

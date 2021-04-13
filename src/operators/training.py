@@ -2,11 +2,11 @@ from tensorflow import keras
 import tensorflow as tf
 
 from lib.config import Config
-from lib.data_model import Dataset
+from lib.data_model import PreppedDataset
 from custom_functions import ml_models
 
 
-def train(dataset: Dataset, config: Config)\
+def train(dataset: PreppedDataset, config: Config)\
         -> keras.Sequential:
     # determine model type and get respective function
     model_type = config.get('model.type')

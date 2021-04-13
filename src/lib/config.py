@@ -1,8 +1,9 @@
+from __future__ import annotations
 import os
-from typing import Any
+from typing import Any, Dict
 import argparse
 
-from omegaconf import OmegaConf
+from omegaconf import OmegaConf, DictConfig
 
 
 class Config:
@@ -10,7 +11,11 @@ class Config:
     Basically just reads the 'configs/default.yml' file plus one optional other
     config file and makes the values accessible by path strings."""
 
-    def __init__(self, name: str = '', config_dir: str = './configs'):
+    def __init__(self, config: DictConfig):
+        self.config = config
+
+    @classmethod
+    def from_file(cls, name: str = '', config_dir: str = './configs'):
         """ Load the configuration files properly; always reads the default.yml
         but overwrites its values if a more specific file is given."""
         # load default config
@@ -21,15 +26,18 @@ class Config:
         if os.path.exists(specific_cfg_path):
             specific_config = OmegaConf.load(specific_cfg_path)
             config = OmegaConf.merge(config, specific_config)
-        self.config = config
+        return cls(config)
 
-    def merge_with_dict(self, config_dict: dict):
-        """ Takes a configuration as dictionary and overwrites the current
-        configuration.
-        This is mostly useful for unit tests where we don't want to depend
-        on existing files to test specific settings."""
-        additional_config = OmegaConf.create(config_dict)
-        self.config = OmegaConf.merge(self.config, additional_config)
+    @classmethod
+    def from_dict(cls, config_dict: Dict):
+        """ Takes a configuration as dictionary and creates a Config object."""
+        config = OmegaConf.create(config_dict)
+        return cls(config)
+
+    def absorb(self, new_config: Config):
+        """ Absorbs the other config and overwrites the values
+        in this config."""
+        OmegaConf.merge(self.config, new_config)
 
     def get(self, path: str, throw_exception: bool = True,
             as_primitive: bool = False) -> Any:
@@ -52,5 +60,5 @@ def config_prompt() -> Config:
         default='',
         help='name of the configuration file to use (e.g. \'default\')')
     args = parser.parse_args()
-    config = Config(args.config)
+    config = Config.from_file(args.config)
     return config

@@ -23,10 +23,12 @@ def evaluate(model: keras.Sequential, dataset: Dataset, config: Config):
     run = Run(
         timestamp=datetime.now(),
         dataset_name=config.get('dataset.name'),
-        preprocessing_cfg=config.get('dataset.preprocessing',
+        preprocessing_cfg=config.get(
+            'dataset.preprocessing',
             as_primitive=True),
         model_type=config.get('model.type'),
-        model_hyperparameters=dict(config.get('model.hyperparameters',
+        model_hyperparameters=dict(config.get(
+            'model.hyperparameters',
             as_primitive=True)),
         metric_scores=metrics
     )

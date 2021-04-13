@@ -71,7 +71,7 @@ class DataStore:
         """
         self.engine.execute(scores_table_query)
 
-    def load_best_run(self, dataset_name: str, metric: str) -> Run:
+    def get_best_run(self, dataset_name: str, metric: str) -> Run:
         query = f"""
             WITH runs_scores AS (
                 SELECT  timestamp,
@@ -100,7 +100,7 @@ class DataStore:
         run_row = result.fetchone()
         return row_to_run(run_row)
 
-    def load_runs(self, conditions: List[str] = []) -> List[Run]:
+    def get_runs(self, conditions: List[str] = []) -> List[Run]:
         """ Loads a list of runs, filtered by the given condition."""
         condition_str = ''
         if len(conditions) >= 1:
@@ -123,7 +123,7 @@ class DataStore:
             runs.append(row_to_run(row))
         return runs
 
-    def load_recent_good_runs(
+    def get_recent_good_runs(
             self, dataset_name: str, metric: str, max_score: float)\
             -> List[Run]:
         """ Loads all runs from the last 7 days which have a score below
@@ -135,7 +135,7 @@ class DataStore:
             f"{self.scores_table}.score < {max_score}",
             f"{self.runs_table}.timestamp >= '{seven_days_ago}'",
         ]
-        runs = self.load_runs(conditions)
+        runs = self.get_runs(conditions)
         return runs
 
     def save_run(self, run: Run):
@@ -179,7 +179,7 @@ class DataStore:
             logging.error(f'dataset {name} already exists;'
                           ' please choose a different name.')
 
-    def load_dataset(self, name: str) -> pd.DataFrame:
+    def get_dataset(self, name: str) -> pd.DataFrame:
         """ Loads the complete dataset with the given name."""
         table_name = f'{self.dataset_prefix}{name}'
         dataset_df = pd.read_sql(table_name, self.engine)

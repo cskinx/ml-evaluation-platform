@@ -6,10 +6,8 @@ import pandas as pd
 from tensorflow.keras.layers.experimental import preprocessing
 
 
-# TODO: this should be renamed because it has the same name as datasets
-# in the DB but they refer to different concepts.
 @dataclass
-class Dataset:
+class PreppedDataset:
     """ Representation of a dataset containing a training and test set,
     which are each split into features and labels. Also contains a normalizer
     based on the training set to properly transform instances outside of
