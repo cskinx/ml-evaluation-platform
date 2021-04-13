@@ -1,6 +1,8 @@
 import pytest
-from src.custom_functions import ml_models
-from src.lib.config import Config
+import sys
+sys.path.append('./src/')
+from custom_functions import ml_models
+from lib.config import Config
 import numpy as np
 from tensorflow.keras.layers.experimental.preprocessing import Normalization
 
