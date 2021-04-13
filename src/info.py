@@ -20,12 +20,12 @@ def main(info_type: str, config: Config):
         print_dataset_overview(overview)
     elif info_type in [PRINT_RELEVANT_RUNS, PRINT_ALL_RUNS]:
         if info_type == PRINT_RELEVANT_RUNS:
-            runs = data_store.load_recent_good_runs(
+            runs = data_store.get_recent_good_runs(
                 dataset_selected,
                 metric_selected,
                 max_score=2.5)
         elif info_type == PRINT_ALL_RUNS:
-            runs = data_store.load_runs()
+            runs = data_store.get_runs()
         runs_info = [
             {'label': str(i + 1), 'run': run} for i, run in enumerate(runs)
         ]

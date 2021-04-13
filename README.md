@@ -51,6 +51,60 @@ You can also print various overviews:
 - All recent good runs (from the last 7 days with an error of less than 2.5):
 `docker run --network="host" ml-evaluation-platform python ./src/info.py --type relevant_runs`
 
+### Example outputs
+
+To run the models described in the notebook as well as an additional one with an even deeper DNN, these are the necessary steps:
+
+```
+$ docker run --network="host" ml-evaluation-platform python ./src/dataloader.py
+Dataset Overview:
+- 'fuel_efficiency':      398
+$ docker run --network="host" ml-evaluation-platform python ./src/pipeline.py --config horsepower
+Runs:
+---------------------------------------------------------------------------------
+Label   | Date       | Dataset         | Preprocessing   | Model      | Metric | 
+        |            |                 |                 |            |        | 
+New run | 2021-04-13 | fuel_efficiency | only_horsepower | regression | 3.66   | 
+---------------------------------------------------------------------------------
+$ docker run --network="host" ml-evaluation-platform python ./src/pipeline.py --config regression
+Runs:
+---------------------------------------------------------------------------------------
+Label         | Date       | Dataset         | Preprocessing   | Model      | Metric | 
+              |            |                 |                 |            |        | 
+Previous best | 2021-04-13 | fuel_efficiency | only_horsepower | regression | 3.66   | 
+New run       | 2021-04-13 | fuel_efficiency | standard        | regression | 2.47   | 
+---------------------------------------------------------------------------------------
+$ docker run --network="host" ml-evaluation-platform python ./src/pipeline.py --config dnn
+Runs:
+-------------------------------------------------------------------------------------
+Label         | Date       | Dataset         | Preprocessing | Model      | Metric | 
+              |            |                 |               |            |        | 
+Previous best | 2021-04-13 | fuel_efficiency | standard      | regression | 2.47   | 
+New run       | 2021-04-13 | fuel_efficiency | standard      | dnn        | 1.96   | 
+-------------------------------------------------------------------------------------
+
+$ docker run --network="host" ml-evaluation-platform python ./src/pipeline.py --config verydnn
+Runs:
+----------------------------------------------------------------------------------
+Label         | Date       | Dataset         | Preprocessing | Model   | Metric | 
+              |            |                 |               |         |        | 
+Previous best | 2021-04-13 | fuel_efficiency | standard      | dnn     | 1.96   | 
+New run       | 2021-04-13 | fuel_efficiency | standard      | verydnn | 1.84   | 
+----------------------------------------------------------------------------------
+$ docker run --network="host" ml-evaluation-platform python ./src/info.py --type all_runs
+Runs:
+-------------------------------------------------------------------------------
+Label | Date       | Dataset         | Preprocessing   | Model      | Metric | 
+      |            |                 |                 |            |        | 
+1     | 2021-04-13 | fuel_efficiency | only_horsepower | regression | 3.66   | 
+2     | 2021-04-13 | fuel_efficiency | standard        | regression | 2.47   | 
+3     | 2021-04-13 | fuel_efficiency | standard        | dnn        | 1.96   | 
+4     | 2021-04-13 | fuel_efficiency | standard        | verydnn    | 1.84   | 
+-------------------------------------------------------------------------------
+
+```
+
+
 ## Extensions
 This is just a first, very plain implementation of a model evaluation platform. There are a lot of potential extensions which hopefully would be fairly straight forward to add with the current modular structure. A few ideas:
 
@@ -59,3 +113,4 @@ This is just a first, very plain implementation of a model evaluation platform. 
 - Currently, only the loss metric is supported for the evaluation; it would make a lot of sense to extend this to other metrics such as recall and precision. This also requires a change in the `DataStore` functions however, because it currently always sees lower scores as better ones.
 - The pipeline is closely coupled from a user perspective, currently, even though they are different Python modules. It's not possible to e.g. only preprocess a dataset and then load that dataset later to train a model on it, and we also cannot store models currently. For large datasets and more complex models, this would definitely be an issue but for this problem we would simply be over-engineering it.
 - It would also be nice if we could train a new model with a new configuration without having to re-build the Docker image. E.g. one could also add the possibility to pass a configuration as JSON dictionary via the command line interface.
+- Printing the exact configurations for each run would also be nice; for that it would be helpful if the user could see the exact `run_id` for each run, and have a separate option in the cli to ask for its parameters.

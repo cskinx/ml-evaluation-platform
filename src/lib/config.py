@@ -37,7 +37,7 @@ class Config:
     def absorb(self, new_config: Config):
         """ Absorbs the other config and overwrites the values
         in this config."""
-        OmegaConf.merge(self.config, new_config)
+        self.config = OmegaConf.merge(self.config, new_config.config)
 
     def get(self, path: str, throw_exception: bool = True,
             as_primitive: bool = False) -> Any:

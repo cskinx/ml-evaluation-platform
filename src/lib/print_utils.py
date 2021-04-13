@@ -4,9 +4,12 @@ from collections import defaultdict
 
 def print_dataset_overview(datasets_info: List[Dict]):
     """ Prints an overview of datasets in the DataStore."""
-    print('Dataset Overview:')
-    for dataset in datasets_info:
-        print(f"- '{dataset['name']}': {dataset['size']:8d}")
+    if len(datasets_info) == 0:
+        print('No datasets yet.')
+    else:
+        print('Dataset Overview:')
+        for dataset in datasets_info:
+            print(f"- '{dataset['name']}': {dataset['size']:8d}")
 
 
 def print_run_overview(runs_info: List[Dict], metric: str):

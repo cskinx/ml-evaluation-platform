@@ -2,13 +2,13 @@ from datetime import datetime
 
 from tensorflow import keras
 
-from lib.data_model import Dataset, Run
+from lib.data_model import PreppedDataset, Run
 from lib.config import Config
 from lib.data_store import DataStore
 from lib.print_utils import print_run_overview
 
 
-def evaluate(model: keras.Sequential, dataset: Dataset, config: Config):
+def evaluate(model: keras.Sequential, dataset: PreppedDataset, config: Config):
     model_result = model.evaluate(
         dataset.test_set,
         dataset.test_labels,
@@ -35,10 +35,10 @@ def evaluate(model: keras.Sequential, dataset: Dataset, config: Config):
     # store run and compare it to previous best runs
     metric = config.get('model.hyperparameters.loss')
     data_store = DataStore(config)
-    best_run = data_store.load_best_run(run.dataset_name, metric)
+    best_run = data_store.get_best_run(run.dataset_name, metric)
     data_store.save_run(run)
-    runs_info = [
-        {'label': 'Previous best', 'run': best_run},
-        {'label': 'New run', 'run': run},
-    ]
+    runs_info = []
+    if best_run:
+        runs_info.append({'label': 'Previous best', 'run': best_run})
+    runs_info.append({'label': 'New run', 'run': run})
     print_run_overview(runs_info, metric)

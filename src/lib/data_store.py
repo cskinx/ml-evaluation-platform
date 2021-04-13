@@ -12,7 +12,13 @@ from lib.config import Config
 from lib.data_model import Run
 
 
+class DatasetNotFoundException(Exception):
+    pass
+
+
 def row_to_run(row: RowProxy) -> Run:
+    if row is None:
+        return None
     # add column names as keys
     run_dict = dict(row)
     run_dict['metric_scores'] = {
@@ -182,6 +188,9 @@ class DataStore:
     def get_dataset(self, name: str) -> pd.DataFrame:
         """ Loads the complete dataset with the given name."""
         table_name = f'{self.dataset_prefix}{name}'
+        if table_name not in self.engine.table_names():
+            raise DatasetNotFoundException(f'Dataset {name} does not exist'
+                                           'in database.')
         dataset_df = pd.read_sql(table_name, self.engine)
         return dataset_df
 

@@ -5,7 +5,10 @@ import numpy as np
 
 
 def test_drop_missing():
-    df = pd.DataFrame([0, 1], [2, np.nan])
+    df = pd.DataFrame({
+        'A': [0, 1], 
+        'B': [2, np.nan],
+    })
     df_dropped = preprocessing_helpers.drop_missing(df)
     assert len(df.index) > len(df_dropped.index)
     assert len(df_dropped.index) == 1

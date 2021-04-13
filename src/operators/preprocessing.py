@@ -62,6 +62,6 @@ def generate_dataset(config: Config) -> PreppedDataset:
     # load dataset from data store
     data_store = DataStore(config)
     dataset_name = config.get('dataset.name')
-    dataset_df = data_store.load_dataset(dataset_name)
+    dataset_df = data_store.get_dataset(dataset_name)
     dataset = preprocess(dataset_df, config)
     return dataset

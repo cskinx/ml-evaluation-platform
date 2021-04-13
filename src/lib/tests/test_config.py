@@ -1,5 +1,7 @@
 import pytest
-from src.lib.config import Config
+import sys
+sys.path.append('./src')
+from lib.config import Config
 
 
 @pytest.fixture
@@ -27,6 +29,8 @@ def test_merge(min_config):
         }
     }
     new_config = Config.from_dict(new_data_dict)
+    assert min_config.get('dataset.name') == 'test'
+    assert new_config.get('dataset.name') == 'new_test'
     min_config.absorb(new_config)
     assert min_config.get('dataset.name') == 'new_test'
 

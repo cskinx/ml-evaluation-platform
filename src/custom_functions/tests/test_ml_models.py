@@ -2,7 +2,7 @@ import pytest
 from src.custom_functions import ml_models
 from src.lib.config import Config
 import numpy as np
-from tf.keras.layers.experimental.preprocessing import Normalization
+from tensorflow.keras.layers.experimental.preprocessing import Normalization
 
 
 @pytest.fixture
@@ -35,7 +35,7 @@ def dnn_config():
 def min_normalizer():
     """ Normalizer with minimalistic data."""
     adapt_data = np.array([[1., 2.], [2., 3.], ], dtype=np.float32)
-    normalizer = Normalization(adapt_data)
+    normalizer = Normalization()
     normalizer.adapt(adapt_data)
     return normalizer
 
